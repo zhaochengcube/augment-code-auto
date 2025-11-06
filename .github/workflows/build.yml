@@ -283,3 +283,19 @@ jobs:
             augment-vscode-modified-v${{ env.VERSION }}.vsix
           draft: false
           prerelease: false
+          
+      - name: Send file to Telegram channel
+        if: github.ref == 'refs/heads/main' && steps.check_version.outputs.skip_build == 'false'
+        run: |
+          curl -sS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument" \
+            -F chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -F document="@augment-vscode-modified-v${{ env.VERSION }}.vsix" \
+            --form-string caption="
+            
+            修改内容：
+            - 添加自动登录回调
+            - 添加防封注入
+
+            基于原版本: ${{ env.VERSION }}
+            
+            "
